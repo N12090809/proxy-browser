@@ -55,12 +55,16 @@
                     e.preventDefault();
                     const formData = new FormData(form);
                     const url = form.action || window.location.href;
+                    const method = form.method.toUpperCase();
                     const params = new URLSearchParams();
                     for (let [key, value] of formData.entries()) {
                         params.append(key, value);
                     }
 
-                    fetch('/proxy?url=' + encodeURIComponent(url) + '&' + params.toString())
+                    fetch('/proxy?url=' + encodeURIComponent(url) + '&' + params.toString(), {
+                        method: method,
+                        body: method === 'POST' ? formData : undefined
+                    })
                         .then(response => response.text())
                         .then(data => {
                             content.innerHTML = data;
@@ -73,5 +77,6 @@
     </script>
 </body>
 </html>
+
 
 
