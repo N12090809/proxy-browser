@@ -26,9 +26,53 @@
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('content').innerHTML = data;
+                    interceptLinksAndForms();
                 })
                 .catch(error => console.error('Error:', error));
         });
+
+        function interceptLinksAndForms() {
+            const content = document.getElementById('content');
+
+            // Intercept links
+            const links = content.getElementsByTagName('a');
+            for (let link of links) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = link.href;
+                    fetch('/proxy?url=' + encodeURIComponent(url))
+                        .then(response => response.text())
+                        .then(data => {
+                            content.innerHTML = data;
+                            interceptLinksAndForms();
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+            }
+
+            // Intercept forms
+            const forms = content.getElementsByTagName('form');
+            for (let form of forms) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(form);
+                    const url = form.action || window.location.href;
+                    const params = new URLSearchParams();
+                    for (let [key, value] of formData.entries()) {
+                        params.append(key, value);
+                    }
+
+                    fetch('/proxy?url=' + encodeURIComponent(url) + '&' + params.toString())
+                        .then(response => response.text())
+                        .then(data => {
+                            content.innerHTML = data;
+                            interceptLinksAndForms();
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+            }
+        }
     </script>
 </body>
 </html>
+
