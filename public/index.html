@@ -22,6 +22,10 @@
         document.getElementById('proxyForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const url = document.getElementById('urlInput').value;
+            fetchProxyContent(url);
+        });
+
+        function fetchProxyContent(url) {
             fetch('/proxy?url=' + encodeURIComponent(url))
                 .then(response => response.text())
                 .then(data => {
@@ -29,7 +33,7 @@
                     interceptLinksAndForms();
                 })
                 .catch(error => console.error('Error:', error));
-        });
+        }
 
         function interceptLinksAndForms() {
             const content = document.getElementById('content');
@@ -40,13 +44,7 @@
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     const url = link.href;
-                    fetch('/proxy?url=' + encodeURIComponent(url))
-                        .then(response => response.text())
-                        .then(data => {
-                            content.innerHTML = data;
-                            interceptLinksAndForms();
-                        })
-                        .catch(error => console.error('Error:', error));
+                    fetchProxyContent(url);
                 });
             }
 
@@ -75,4 +73,5 @@
     </script>
 </body>
 </html>
+
 
